@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "amazon-connect-streams": "^2.1.1"
+  }
+}
