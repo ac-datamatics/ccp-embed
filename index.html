@@ -12,35 +12,25 @@
 	<h1>Testing</h1>
 	<div id="ccp" style="width: 400px; height: 400px;"></div>
 
-	<div id="incoming-call-controls" style="display: none;">
-		<button id="incoming-call-accept">Accept</button>
-		<button id="incoming-call-reject">Reject</button>
-	</div>
 
 	<script src="./aws-connect-listener.js"></script>
 	<script type="text/javascript">
 		// initialize the streams api
 		const connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2");
-		// Controls
-		document.querySelector('#incoming-call-accept').onclick = connectListener.acceptIncomingCall();
-		document.querySelector('#incoming-call-reject').onclick = connectListener.rejectIncomingCall();
+
 
 		connectListener.onCallConnectingOrIncoming = (contact) => {
-			showIncomingCallControls();
+			alert("You have an incoming call ☎️");
 		}
 		connectListener.onCallMissed = () => {
-			hideIncomingCallControls();
+			alert("Missed call 📞")
 		}
 		connectListener.onCallConnected = (contact) => {
-			hideIncomingCallControls();
-			showCCP();
 			const connection = contact.getAgentConnection();
-			alert("COnnected. ID of connection is " + connection.getConnectionId());
+			alert("Connected to call. ID of connection is " + connection.getConnectionId());
 		}
 		connectListener.onCallError = () => {
 			alert("error");
-			hideIncomingCallControls();
-			hideCCP();
 		}
 
 		connectListener.onCallPending = () => {
@@ -49,15 +39,12 @@
 		
 		connectListener.onCallEnded = () => {
 			alert("Ended")
-			hideCCP();
 		}
 		connectListener.onCallDestroy = () => {
 			alert("Call is destroyed");
-			hideCCP();
 		}
 		connectListener.onCallACW = () => {
 			alert("ACW");
-			showCCP();
 		}
 	</script>
 </body>
