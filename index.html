@@ -5,18 +5,25 @@
 	<meta charset="UTF-8">
 	<script type="text/javascript"
 		src="https://unpkg.com/amazon-connect-streams@2.1.1/release/connect-streams-min.js"></script>
+    <style>
+        #ccp{
+            height: 400px;
+            width: 400px;
+            padding: 16px;
+            background: whitesmoke;
+        }
+    </style>
 </head>
 <!-- Add the call to init() as an onload so it will only run once the page is loaded -->
 
 <body>
 	<h1>Testing</h1>
+    <h2>+52 55 4440 5475</h2>
 
-
-    <div id="container">
-        <div id="ccp" style="width: 400px; height: 400px;"></div>
+    <div id="ccp">
         <div id="message">
-            You are not logged in!!
-            <button onclick="connectListener.login()">Login!</button>
+            <p>You are not Logged in!</p>
+            <button onclick="connectListener.login()">Login here!</button>
         </div>
     </div>
 
@@ -31,6 +38,14 @@
 		} else {
             // initialize the streams api
             connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2#");
+
+            connectListener.onInstanceInitialized = () => {
+                document.querySelector('#message').style.display = 'none';
+            }
+
+            connectListener.onInstanceTerminated = () => {
+                document.querySelector('#message').style.display = 'initial';
+            }
 
             connectListener.onCallConnectingOrIncoming = (contact) => {
                 alert("You have an incoming call ☎️");

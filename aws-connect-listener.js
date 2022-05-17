@@ -29,19 +29,15 @@ const CCP_OPTIONS = {
 }
 
 class ConnectListener {
-    // Data about instance
+    // Instances
     isInitialized;
     instanceURL;
-    
     onInstanceInitialized;
     onInstanceTerminated;
 
     // Data about calls
     callStatus;
     callContact;
-
-
-    onInitialized;
     onCallConnectingOrIncoming;
     onCallConnected;
     onCallPending;
@@ -51,8 +47,7 @@ class ConnectListener {
     onCallACW;
     onCallDestroy;
 
-    currentContact;
-
+    // Agent
     agent;
 
     /**
@@ -63,6 +58,7 @@ class ConnectListener {
         // Configure instance data
         this.instanceURL = instanceURL;
         this.isInitialized = false;
+
         // Init ccp
         connect.core.initCCP(containerDiv, {
             ccpUrl: this.instanceURL, // Required
@@ -78,7 +74,6 @@ class ConnectListener {
             const eventBus = connect.core.getEventBus();
             eventBus.subscribe(connect.EventType.TERMINATED, () => {
                 this.isInitialized = false;
-                localStorage.removeItem('connectPopupManager::connect::loginPopup');
                 this.onInstanceTerminated?.();
             });
 
