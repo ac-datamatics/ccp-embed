@@ -5,47 +5,22 @@
 	<meta charset="UTF-8">
 	<script type="text/javascript"
 		src="https://unpkg.com/amazon-connect-streams@2.1.1/release/connect-streams-min.js"></script>
-    <style>
-        #ccp{
-            height: 400px;
-            width: 400px;
-            padding: 16px;
-            background: whitesmoke;
-        }
-    </style>
 </head>
 <!-- Add the call to init() as an onload so it will only run once the page is loaded -->
 
 <body>
 	<h1>Testing</h1>
-    <h2>+52 55 4440 5475</h2>
-
-    <div id="ccp">
-        <div id="message">
-            <p>You are not Logged in!</p>
-            <button onclick="connectListener.login()">Login here!</button>
-        </div>
-    </div>
-
+	<div id="ccp" style="width: 400px; height: 400px;"></div>
 
 
 	<script src="./aws-connect-listener.js"></script>
 	<script src="./compatibility.js"></script>
 	<script type="text/javascript">
-        let connectListener;
 		if(!isBrowserCompatible()) {
-			document.querySelector("#message").innerHTML = "Sorry, browser not supported. Please switch to one of the three latest versions of Chrome or Firefox."
+			document.getElementById("ccp").innerHTML = "Sorry, browser not supported. Please switch to one of the three latest versions of Chrome or Firefox."
 		} else {
             // initialize the streams api
-            connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2#");
-
-            connectListener.onInstanceInitialized = () => {
-                document.querySelector('#message').style.display = 'none';
-            }
-
-            connectListener.onInstanceTerminated = () => {
-                document.querySelector('#message').style.display = 'initial';
-            }
+            const connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2");
 
             connectListener.onCallConnectingOrIncoming = (contact) => {
                 alert("You have an incoming call ☎️");
@@ -54,8 +29,8 @@
                 alert("Missed call 📞")
             }
             connectListener.onCallConnected = (contact) => {
-                const contactId = contact.getContactId();
-                alert("Connected to call. ID of connection is " + contactId);
+                const connection = contact.getAgentConnection();
+                alert("Connected to call. ID of connection is " + connection.getConnectionId());
             }
             connectListener.onCallError = () => {
                 alert("error");
