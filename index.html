@@ -10,17 +10,27 @@
 
 <body>
 	<h1>Testing</h1>
-	<div id="ccp" style="width: 400px; height: 400px;"></div>
+
+
+    <div id="container">
+        <div id="ccp" style="width: 400px; height: 400px;"></div>
+        <div id="message">
+            You are not logged in!!
+            <button onclick="connectListener.login()">Login!</button>
+        </div>
+    </div>
+
 
 
 	<script src="./aws-connect-listener.js"></script>
 	<script src="./compatibility.js"></script>
 	<script type="text/javascript">
+        let connectListener;
 		if(!isBrowserCompatible()) {
-			document.getElementById("ccp").innerHTML = "Sorry, browser not supported. Please switch to one of the three latest versions of Chrome or Firefox."
+			document.querySelector("#message").innerHTML = "Sorry, browser not supported. Please switch to one of the three latest versions of Chrome or Firefox."
 		} else {
             // initialize the streams api
-            const connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2");
+            connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2#");
 
             connectListener.onCallConnectingOrIncoming = (contact) => {
                 alert("You have an incoming call ☎️");
@@ -29,8 +39,8 @@
                 alert("Missed call 📞")
             }
             connectListener.onCallConnected = (contact) => {
-                const connection = contact.getAgentConnection();
-                alert("Connected to call. ID of connection is " + connection.getConnectionId());
+                const contactId = contact.getContactId();
+                alert("Connected to call. ID of connection is " + contactId);
             }
             connectListener.onCallError = () => {
                 alert("error");
