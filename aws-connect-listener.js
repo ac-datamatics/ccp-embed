@@ -58,38 +58,50 @@ class ConnectListener {
         // Configure instance data
         this.instanceURL = instanceURL;
         this.isInitialized = false;
-
+        // Restore
+        this.callContact = null;
+        this.callStatus = null;
         // Init ccp
         connect.core.initCCP(containerDiv, {
             ccpUrl: this.instanceURL, // Required
             ...CCP_OPTIONS
         })
-        // On initialized
-        connect.core.onInitialized(() => {
-            // Set as initialized
+
+        const eventBus = connect.core.getEventBus();
+        // Listen to instance termination
+        eventBus.subscribe(connect.EventType.TERMINATED, () => {
+            this.isInitialized = false;
+            this.onInstanceTerminated?.();
+        });
+        // Listen to init
+        eventBus.subscribe(connect.EventType.INIT, () => {
             this.isInitialized = true;
             this.onInstanceInitialized?.();
-
-            // Listen to instance termination
-            const eventBus = connect.core.getEventBus();
-            eventBus.subscribe(connect.EventType.TERMINATED, () => {
-                this.isInitialized = false;
-                this.onInstanceTerminated?.();
-            });
-
-            // Listen to agent
+            // Get current agent
             connect.agent(agent => {
-                agent.onRefresh(agent => {
-                    this.agent = agent;
-                })
+                this.agent = agent;
             })
-            // Listen to contact events
+            // Listen to contacts
             connect.contact(contact => {
-                contact.onRefresh(contact => {
-                    this.callContact = contact;
+                // Avoid duplicates
+                if(this.callContact.getContactId() == contact.getContactId()) return;
+                // Store new contact
+                this.callContact = contact;
+                // Events
+                this.callContact.onRefresh(contact => {
                     // Avoid duplicate events
-                    if (this.callStatus == contact.getState().type) return;
+                    if(this.callStatus == contact.getState().type) return;
                     this.callStatus = contact.getState().type;
+                    // Listen to acw
+                    contact.onACW(() => {
+                        this.callStatus = "after-call-work";
+                        this.onCallACW?.(contact);
+                    })
+                    // Listen to call destroy
+                    contact.onDestroy(() => {
+                        this.callStatus = "destroyed";
+                        this.onCallDestroy?.(contact);
+                    })
                     switch (this.callStatus) {
                         case connect.ContactStateType.INCOMING:
                         case connect.ContactStateType.CONNECTING:
@@ -111,18 +123,9 @@ class ConnectListener {
                             this.onCallError?.(contact);
                             break;
                     }
-                })
-                contact.onACW(() => {
-                    this.callStatus = "after-call-work";
-                    this.onCallACW?.(contact);
-                })
-                contact.onDestroy(() => {
-                    this.callStatus = "destroyed";
-                    this.onCallDestroy?.(contact);
-                })
-            })
+                });
+            });
         });
-        
     }
 
     login(){
