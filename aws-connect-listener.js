@@ -135,6 +135,10 @@ class ConnectListener {
         });
     }
 
+    initialized(){
+        return this.isInitialized;
+    }
+
 
     acceptIncomingCall() {
         this.currentContact?.accept();

@@ -39,12 +39,20 @@
             // initialize the streams api
             connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2#");
 
+            // iff the instace is initialized, then the iframe must be hidden
+            if (!connectListener.initialized()){
+                document.getElementsByTagName("iframe")[0].toggleAttribute("hidden");
+            }
+
             connectListener.onInstanceInitialized = () => {
                 document.querySelector('#message').style.display = 'none';
+                // once the user is logged in, the iframe must be shown
+                document.getElementsByTagName("iframe")[0].removeAttribute("hidden");
             }
 
             connectListener.onInstanceTerminated = () => {
                 document.querySelector('#message').style.display = 'initial';
+                document.getElementsByTagName("iframe")[0].toggleAttribute("hidden");
             }
 
             connectListener.onCallConnectingOrIncoming = (contact) => {
