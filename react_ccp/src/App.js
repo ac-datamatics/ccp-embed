@@ -1,6 +1,5 @@
 import './App.css';
 import React from 'react';
-import ConnectListener from './aws-connect-listener';
 import isBrowserCompatible from './compatibility';
 import CCP from './CCP';
 
