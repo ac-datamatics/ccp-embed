@@ -2,12 +2,12 @@
 
 const CCP_OPTIONS = {
     region: "us-east-1", // Region of the instance
-    ccpAckTimeout: 5000, //optional, defaults to 3000 (ms)
-    ccpSynTimeout: 3000, //optional, defaults to 1000 (ms)
-    ccpLoadTimeout: 10000, //optional, defaults to 5000 (ms)
+    ccpAckTimeout: 3000, //optional, defaults to 3000 (ms)
+    ccpSynTimeout: 1000, //optional, defaults to 1000 (ms)
+    ccpLoadTimeout: 5000, //optional, defaults to 5000 (ms)
     loginPopupAutoClose: true,
     // LOGIN
-    loginPopup: false, // Show a popup window to authenticate
+    loginPopup: true, // Show a popup window to authenticate
     loginPopupAutoClose: true, // Auto close login popup after auth
     loginOptions: {
         autoClose: true,
@@ -129,6 +129,7 @@ class ConnectListener {
     }
 
     login(){
+        localStorage.removeItem('connectPopupManager::connect::loginPopup');
         if(this.isInitialized) return;
         connect.core.loginWindow = connect.core.getPopupManager().open(this.instanceURL, connect.MasterTopics.LOGIN_POPUP, {
             autoClose: true

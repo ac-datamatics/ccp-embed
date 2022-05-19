@@ -2,11 +2,11 @@
 <html>
 
 <head>
-	<meta charset="UTF-8">
-	<script type="text/javascript"
-		src="https://unpkg.com/amazon-connect-streams@2.1.1/release/connect-streams-min.js"></script>
+    <meta charset="UTF-8">
+    <script type="text/javascript"
+        src="https://unpkg.com/amazon-connect-streams@2.1.1/release/connect-streams-min.js"></script>
     <style>
-        #ccp{
+        #ccp {
             height: 400px;
             width: 400px;
             padding: 16px;
@@ -17,7 +17,7 @@
 <!-- Add the call to init() as an onload so it will only run once the page is loaded -->
 
 <body>
-	<h1>Testing</h1>
+    <h1>Testing</h1>
     <h2>+52 55 4440 5475</h2>
 
     <div id="ccp">
@@ -29,18 +29,22 @@
 
 
 
-	<script src="./aws-connect-listener.js"></script>
-	<script src="./compatibility.js"></script>
-	<script type="text/javascript">
+    <script src="./aws-connect-listener.js"></script>
+    <script src="./compatibility.js"></script>
+    <script type="text/javascript">
+        var intervalId = window.setInterval(function () {
+            localStorage.removeItem('connectPopupManager::connect::loginPopup')
+        }, 5000);
+
         let connectListener;
-		if(!isBrowserCompatible()) {
-			document.querySelector("#message").innerHTML = "Sorry, browser not supported. Please switch to one of the three latest versions of Chrome or Firefox."
-		} else {
+        if (!isBrowserCompatible()) {
+            document.querySelector("#message").innerHTML = "Sorry, browser not supported. Please switch to one of the three latest versions of Chrome or Firefox."
+        } else {
             // initialize the streams api
             connectListener = new ConnectListener(document.getElementById("ccp"), "https://ac-datamatics.my.connect.aws/ccp-v2#");
 
             // iff the instace is initialized, then the iframe must be hidden
-            if (!connectListener.initialized()){
+            if (!connectListener.initialized()) {
                 document.getElementsByTagName("iframe")[0].toggleAttribute("hidden");
             }
 
@@ -72,7 +76,7 @@
             connectListener.onCallPending = () => {
                 alert("Pending")
             }
-            
+
             connectListener.onCallEnded = () => {
                 alert("Ended")
             }
@@ -83,7 +87,7 @@
                 alert("ACW");
             }
         }
-	</script>
+    </script>
 </body>
 
 </html>
