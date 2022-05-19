@@ -129,6 +129,7 @@ class ConnectListener {
     }
 
     login(){
+        // Remove from localstorage the item that says the popup was shown
         localStorage.removeItem('connectPopupManager::connect::loginPopup');
         if(this.isInitialized) return;
         connect.core.loginWindow = connect.core.getPopupManager().open(this.instanceURL, connect.MasterTopics.LOGIN_POPUP, {

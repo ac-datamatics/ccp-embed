@@ -32,9 +32,12 @@
     <script src="./aws-connect-listener.js"></script>
     <script src="./compatibility.js"></script>
     <script type="text/javascript">
-        var intervalId = window.setInterval(function () {
-            localStorage.removeItem('connectPopupManager::connect::loginPopup')
-        }, 5000);
+
+        // NO USAR 
+        // Function that remove from localstorage the item that says the popup was shown, every 5 seconds
+        // var intervalId = window.setInterval(function () {
+        //     localStorage.removeItem('connectPopupManager::connect::loginPopup')
+        // }, 5000);
 
         let connectListener;
         if (!isBrowserCompatible()) {
