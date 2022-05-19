@@ -54,6 +54,7 @@
             connectListener.onInstanceInitialized = () => {
                 document.querySelector('#message').style.display = 'none';
                 // once the user is logged in, the iframe must be shown
+                connect.core.loginWindow?.close();
                 document.getElementsByTagName("iframe")[0].removeAttribute("hidden");
             }
 

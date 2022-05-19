@@ -84,13 +84,13 @@ class ConnectListener {
             // Listen to contacts
             connect.contact(contact => {
                 // Avoid duplicates
-                if(this.callContact.getContactId() == contact.getContactId()) return;
+                if (this.callContact.getContactId() == contact.getContactId()) return;
                 // Store new contact
                 this.callContact = contact;
                 // Events
                 this.callContact.onRefresh(contact => {
                     // Avoid duplicate events
-                    if(this.callStatus == contact.getState().type) return;
+                    if (this.callStatus == contact.getState().type) return;
                     this.callStatus = contact.getState().type;
                     // Listen to acw
                     contact.onACW(() => {
@@ -128,16 +128,20 @@ class ConnectListener {
         });
     }
 
-    login(){
+    login() {
         // Remove from localstorage the item that says the popup was shown
         localStorage.removeItem('connectPopupManager::connect::loginPopup');
-        if(this.isInitialized) return;
+        if (this.isInitialized) return;
         connect.core.loginWindow = connect.core.getPopupManager().open(this.instanceURL, connect.MasterTopics.LOGIN_POPUP, {
-            autoClose: true
+            autoClose: true,
+            height: 600,
+            width: 400,
+            top: 0,
+            left: 0
         });
     }
 
-    initialized(){
+    initialized() {
         return this.isInitialized;
     }
 
