@@ -141,8 +141,21 @@ class ConnectListener {
         });
     }
 
-    initialized() {
-        return this.isInitialized;
+    usertype(){
+        let usertype = "No logged";
+        if (this.isInitialized) {
+            if (this.agent.getPermissions().length > 1) {
+                usertype = "Admin";
+            }
+            else if (this.agent.getPermissions().length == 1) {
+                usertype = "Agent";
+            }
+            else{
+                usertype = "No permissions";
+            }
+        }
+
+        alert(usertype);
     }
 
 

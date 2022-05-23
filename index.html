@@ -25,6 +25,10 @@
             <p>You are not Logged in!</p>
             <button onclick="connectListener.login()">Login here!</button>
         </div>
+        <div id="typeuser">
+            <!-- <p>Tipo de Usuario : You are not Logged in</p> -->
+            <button onclick="connectListener.usertype()">Check user type</button>
+        </div>
     </div>
 
 
@@ -53,6 +57,8 @@
 
             connectListener.onInstanceInitialized = () => {
                 document.querySelector('#message').style.display = 'none';
+                //document.querySelector('#typeuser').removeAttribute("hidden");
+                // document.querySelector('#typeuser').innerHTML = 'Tipo de Usuarioes : ' + connectListener.getUserType();
                 // once the user is logged in, the iframe must be shown
                 connect.core.loginWindow?.close();
                 document.getElementsByTagName("iframe")[0].removeAttribute("hidden");
@@ -60,6 +66,7 @@
 
             connectListener.onInstanceTerminated = () => {
                 document.querySelector('#message').style.display = 'initial';
+                //document.querySelector('#typeuser').toggleAttribute("hidden");
                 document.getElementsByTagName("iframe")[0].toggleAttribute("hidden");
             }
 
