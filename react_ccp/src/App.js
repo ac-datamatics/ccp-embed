@@ -29,6 +29,8 @@ function App() {
             onIncomingContact={(contact) => {
               // Called when there is an incoming contact (eg, the phone is ringing)
               // Here the option to answer and start recording should be shown
+              
+
             }}
             onPendingContact={(contact) => {
               // Called before the connectedContact event. The contact is pending

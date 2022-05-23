@@ -126,6 +126,16 @@ class CCP extends Component {
         this.__loginWindow = window.open(this.instanceURL, "window2", "popup=1");
     }
 
+    getAgentType(){
+        try{
+            const permissions = this.agent.getPermissions();
+            if(permissions.length == 1) return "Agent";
+            else if(permissions.length == 2) return "Admin";
+        } catch(e){
+            return "CallCenterManager";
+        }
+    }
+
     render() {
         if (!isBrowserCompatible()) return <div> This browser is not compatible </div>
         return (
