@@ -2,10 +2,16 @@ import './App.css';
 import React from 'react';
 import isBrowserCompatible from './compatibility';
 import CCP from './CCP';
+import ScreenRecorder from './ScreenRecorder';
 
 function App() {
     // Used to call methods of the object
     const ccp = React.createRef();
+    const recorder = new ScreenRecorder({
+      onstop: (e)=>{
+        let blob = recorder.getDataBlob();
+      }
+    });
     return (
       <div className="App">
           <p>+52 55 4440 5475</p>
@@ -20,15 +26,14 @@ function App() {
             key={"CCP"}
             onInstanceConnected={(__ccp) => {
               // Called on instance init, when an agent logs in
-              
             }}
-            onInstanceTerminated={() => {
+            onInstanceTerminated={async () => {
               // Called on instance termination, when an agent logs out
+
             }}
-            onAgent={(agent)=>{
+            onAgent={async (agent)=>{
               // Called after initialization, when an agent is assigned to the ccp
-              let type = ccp.current.getAgentType();
-              alert(type)
+              //let type = ccp.current.getAgentType();
             }}
             onAgentStateChange={(state) => {
               // Called when the agent's state changes (ie, they are online/offline, in a call or on acw)
@@ -36,10 +41,15 @@ function App() {
             onContact={(contact) => {
               // Called when new info of a contact is received
             }}
-            onIncomingContact={(contact) => {
+            onIncomingContact={async (contact) => {
               // Called when there is an incoming contact (eg, the phone is ringing)
               // Here the option to answer and start recording should be shown
-              alert("Incoming call");
+              await recorder.start();
+              if(window.confirm("Answer")){
+                contact.accept()
+              } else {
+                contact.reject()
+              }
             }}
             onPendingContact={(contact) => {
               // Called before the connectedContact event. The contact is pending
@@ -64,6 +74,13 @@ function App() {
               // Called after acw, when the agent closes the communication with the contact
               // Here, the stored recording should be uploaded to S3
               // Here, a lambda must be called to insert the recording's data into the database
+              const data = {
+                agentId: ccp.current.agent.getConfiguration().username,
+                callStartUTCDate: contact.getQueueTimestamp().toISOString(),
+                contactId: contact.getContactId()
+              }
+              // Stop recording
+              recorder.stop();
             }}
             onAfterCallWork={(contact) => {
               // Called after the call has ended but the agent is still working

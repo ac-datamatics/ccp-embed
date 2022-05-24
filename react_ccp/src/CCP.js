@@ -155,6 +155,11 @@ class CCP extends Component {
         }
     }
 
+    setAgentStatus(type){
+        this.agent.setState(type)
+    }
+
+
     render() {
         if (!isBrowserCompatible()) return <div> This browser is not compatible </div>
         return (
