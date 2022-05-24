@@ -4,6 +4,7 @@ import "amazon-connect-streams";
 import isBrowserCompatible from "./compatibility";
 
 class CCP extends Component {
+    static i = 0;
     constructor(props) {
         super(props);
         this.containerDiv = React.createRef();
@@ -12,12 +13,18 @@ class CCP extends Component {
             initialized: false
         }
         this.__loginWindow;
+        this.__terminatedSubscription;
+        this.__updateConnectedSubscription;
+    }
+
+    componentWillUnmount(){
+        connect.core.getEventBus().unsubscribeAll();
     }
 
     componentDidMount() {
         if (!isBrowserCompatible) {
             this.containerDiv.current.innerHTML = "Sorry, browser not supported. Please switch to one of the three latest versions of Chrome or Firefox."
-            return
+            return;
         }
         connect.core.initCCP(this.containerDiv.current, {
             // CONNECT CONFIG
@@ -48,13 +55,18 @@ class CCP extends Component {
             },
         });
         // On ccp instance terminated
-        connect.core.getEventBus().subscribe(connect.EventType.TERMINATED, () => {
+        this.__terminatedSubscription?.unsubscribe();
+        this.__terminatedSubscription = connect.core.getEventBus().subscribe(connect.EventType.TERMINATED, () => {
+            if(!this.state.initialized) return;
             this.setState({ initialized: false });
             // Callback
             this.props.onInstanceTerminated?.();
+
         });
         // On connected to ccp
-        connect.core.getEventBus().subscribe(connect.EventType.UPDATE_CONNECTED_CCPS, () => {
+        this.__updateConnectedSubscription?.unsubscribe();
+        this.__updateConnectedSubscription = connect.core.getEventBus().subscribe(connect.EventType.UPDATE_CONNECTED_CCPS, () => {
+            if(this.state.initialized) return;
             this.setState({ initialized: true });
             // Close login window
             this.__loginWindow?.close();
@@ -62,6 +74,7 @@ class CCP extends Component {
             this.props.onInstanceConnected?.();
             // Listen to agents 
             connect.agent(agent => {
+                if(agent.getConfiguration().username == this.agent?.getConfiguration().username) return;
                 // Store agent
                 this.agent = agent;
                 // Callback
@@ -74,12 +87,18 @@ class CCP extends Component {
                     this.props.onAgentStateChange?.(state);
                 });
             });
+            // Previous contact
+            let previousContactID = null;
             // Listen to contacts
             connect.contact(contact => {
+                alert(contact.getContactId());
+                // Listen to contacts only once
+                if(contact.getContactId() == previousContactID) return;
+                previousContactID = contact.getContactId();
                 // Callback
                 this.props.onContact?.(contact);
                 // Store previous state
-                let previousState = contact.getState().type;
+                let previousState = null;
                 // Listen to contact changes
                 contact.onRefresh(contact => {
                     if (contact.getState().type == previousState) return;
@@ -130,7 +149,7 @@ class CCP extends Component {
         try{
             const permissions = this.agent.getPermissions();
             if(permissions.length == 1) return "Agent";
-            else if(permissions.length == 2) return "Admin";
+            return "Admin";
         } catch(e){
             return "CallCenterManager";
         }
@@ -139,13 +158,12 @@ class CCP extends Component {
     render() {
         if (!isBrowserCompatible()) return <div> This browser is not compatible </div>
         return (
-            <div>
-                <div ref={this.containerDiv} style={{ display: this.state.initialized ? 'block' : 'none', height: '400px', width: '400px' }}></div>
-                <div style={{ display: this.state.initialized ? 'none' : 'initial' }}>
+            <div style={this.props.style}>
+                <div ref={this.containerDiv} style={{display: this.state.initialized ? 'flex' : 'none', flex: 1, height: '100%', width: '100%'}}></div>
+                <div style={{ display: this.state.initialized ? 'none' : 'flex', flexDirection: 'column', flex: 1, height: '100%', width: '100%' }}>
                     <h1>Please login here</h1>
                     <button onClick={this.openLoginPopup.bind(this)}>Login</button>
                 </div>
-                <p>+52 55 4440 5475</p>
             </div>
         )
     }

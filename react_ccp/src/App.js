@@ -8,17 +8,27 @@ function App() {
     const ccp = React.createRef();
     return (
       <div className="App">
-          {isBrowserCompatible() && <CCP 
+          <p>+52 55 4440 5475</p>
+          <CCP 
             instanceURL={"https://ac-datamatics.my.connect.aws/ccp-v2"} 
             ref={ccp}
-            onInstanceConnected={() => {
+            style={{
+              height: '500px', 
+              width: '500px',
+              backgroundColor: 'grey'
+            }}
+            key={"CCP"}
+            onInstanceConnected={(__ccp) => {
               // Called on instance init, when an agent logs in
+              
             }}
             onInstanceTerminated={() => {
               // Called on instance termination, when an agent logs out
             }}
             onAgent={(agent)=>{
               // Called after initialization, when an agent is assigned to the ccp
+              let type = ccp.current.getAgentType();
+              alert(type)
             }}
             onAgentStateChange={(state) => {
               // Called when the agent's state changes (ie, they are online/offline, in a call or on acw)
@@ -29,8 +39,7 @@ function App() {
             onIncomingContact={(contact) => {
               // Called when there is an incoming contact (eg, the phone is ringing)
               // Here the option to answer and start recording should be shown
-              
-
+              alert("Incoming call");
             }}
             onPendingContact={(contact) => {
               // Called before the connectedContact event. The contact is pending
@@ -59,7 +68,7 @@ function App() {
             onAfterCallWork={(contact) => {
               // Called after the call has ended but the agent is still working
             }}
-          />}
+          />
       </div>
     );
   }
