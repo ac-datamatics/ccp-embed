@@ -38,6 +38,7 @@ export default class ScreenRecorder {
         if (this.stream == null) throw new Error("[ScreenRecorder] Stream not available")
         if (!this.isRecording) return;
         // Stop all tracks
+        this.isRecording = false;
         this.stream.getTracks().forEach(track => track.stop());
     }
 

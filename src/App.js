@@ -76,7 +76,7 @@ function App() {
               // Here, a lambda must be called to insert the recording's data into the database
               const data = {
                 agentId: ccp.current.agent.getConfiguration().username,
-                callStartUTCDate: contact.getQueueTimestamp().toISOString(),
+                // callStartUTCDate: contact.getQueueTimestamp().toISOString(),
                 contactId: contact.getContactId()
               }
               // Stop recording
