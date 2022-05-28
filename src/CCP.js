@@ -127,7 +127,7 @@ class CCP extends Component {
                     previousState = "after-call-work";
                     this.props.onAfterCallWork?.();
                 });
-                contact.onDestroy(() => {
+                contact.onDestroy((contact) => {
                     if (previousState == "destroy") return;
                     previousState = "destroy";
                     this.props.onDestroyContact?.(contact);
@@ -151,6 +151,7 @@ class CCP extends Component {
             if(permissions.length == 1) return "Agent";
             return "Admin";
         } catch(e){
+            console.debug(e.message);
             return "CallCenterManager";
         }
     }
