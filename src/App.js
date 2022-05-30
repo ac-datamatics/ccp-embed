@@ -2,13 +2,38 @@ import './App.css';
 import React from 'react';
 import CCP from './CCP';
 import ScreenRecorder from './ScreenRecorder';
+import {uploadFile, uploadVideo} from './uploadS3';
+
+import Amplify, { Auth, Storage } from 'aws-amplify';
+
+import awsconfig from './aws-exports';
+Amplify.configure(awsconfig);
+
+// Amplify.configure({
+//     Auth: {
+//         identityPoolId: 'us-east-1:632fe465-4c6b-49a7-bcb0-ddc9cf0e16ee', //REQUIRED - Amazon Cognito Identity Pool ID
+//         region: 'us-east-1', // REQUIRED - Amazon Cognito Region
+//         // userPoolId: 'XX-XXXX-X_abcd1234', //OPTIONAL - Amazon Cognito User Pool ID
+//         // userPoolWebClientId: 'XX-XXXX-X_abcd1234', //OPTIONAL - Amazon Cognito Web Client ID
+//     },
+//     Storage: {
+//         AWSS3: {
+//             bucket: 'ac-datamatics', //REQUIRED -  Amazon S3 bucket name
+//             region: 'us-east-1', //OPTIONAL -  Amazon service region
+//         }
+//     }
+// });
 
 function App() {
+  //const credentials = Auth.currentCredentials();
+  // credentials.then ( imprimir => console.log(imprimir));
+  // uploadFile();
+    let blob;
     // Used to call methods of the object
     const ccp = React.createRef();
     const recorder = new ScreenRecorder({
       onstop: (e)=>{
-        let blob = recorder.getDataBlob();
+        blob = recorder.getDataBlob();
       }
     });
     return (
@@ -80,6 +105,10 @@ function App() {
               // Here, the stored recording should be uploaded to S3
               // Stop recording
               recorder.stop();
+
+              // Upload recording
+              await uploadVideo(blob);
+
               // Here, a lambda must be called to insert the recording's data into the database
               const data = {
                 agentId: ccp.current.agent.getConfiguration().username,
