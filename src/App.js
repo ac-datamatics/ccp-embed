@@ -75,7 +75,7 @@ function App() {
               // Called when there is an incoming contact (eg, the phone is ringing)
               // Here the option to answer and start recording should be shown
               if(window.confirm("Answer")){
-                contact.accept()
+                contact.accept();
                 recorder.start();
               } else {
                 contact.reject()
@@ -102,11 +102,10 @@ function App() {
             }}
             onDestroyContact={async (contact) => {
               // Called after acw, when the agent closes the communication with the contact
-              // Here, the stored recording should be uploaded to S3
               // Stop recording
               recorder.stop();
 
-              // Upload recording
+              // Here, the stored recording should be uploaded to S3
               await uploadVideo(blob);
 
               // Here, a lambda must be called to insert the recording's data into the database
@@ -114,10 +113,7 @@ function App() {
                 agentId: ccp.current.agent.getConfiguration().username,
                 // callStartUTCDate: contact.getQueueTimestamp().toISOString(),
                 contactId: contact.getContactId(),
-                queueId: contact.getQueue().queueId,
-                // If it's just chat, don't merge audio/video
-                contactType: contact.getType(),
-                otherCheck: contact.isSoftphoneCall()
+                queueId: contact.getQueue().queueId
               }
             }}
             onAfterCallWork={(contact) => {
