@@ -106,7 +106,8 @@ class CCP extends Component {
                     switch (previousState) {
                         case connect.ContactStateType.INCOMING:
                         case connect.ContactStateType.CONNECTING:
-                            return this.props.onIncomingContact?.(contact);
+                            if(contact.getType() == connect.ContactType.VOICE)
+                                return this.props.onIncomingContact?.(contact);
                         case connect.ContactStateType.PENDING:
                             return this.props.onPendingContact?.(contact);
                         case connect.ContactStateType.MISSED:
@@ -130,7 +131,8 @@ class CCP extends Component {
                 contact.onDestroy((contact) => {
                     if (previousState == "destroy") return;
                     previousState = "destroy";
-                    this.props.onDestroyContact?.(contact);
+                    if(contact.getType() == connect.ContactType.VOICE)
+                        this.props.onDestroyContact?.(contact);
                 });
             });
 
