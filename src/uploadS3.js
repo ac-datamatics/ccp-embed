@@ -21,11 +21,12 @@ import Amplify, { Auth, Storage } from 'aws-amplify';
 //     console.log('uploaded');
 // }
 
-export async function uploadVideo(blob) {
+export function uploadVideo(blob) {
     try {
+      console.log("AQUI::::"+blob)
       //const response = await fetch(uploadVideo);
       //const blob = await response.blob();
-      await Storage.put(new Date().toJSON() + ".webm", blob, {
+      Storage.put(new Date().toJSON() + ".webm", blob, {
         contentType: "video/webm", // contentType is optional
       });
       console.log("Uploaded");
