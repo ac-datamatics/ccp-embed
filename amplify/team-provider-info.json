@@ -10,29 +10,6 @@
       "StackName": "amplify-datamatics-dev-165025",
       "StackId": "arn:aws:cloudformation:us-east-1:688487247453:stack/amplify-datamatics-dev-165025/84598980-e062-11ec-9339-0a585af86c73",
       "AmplifyAppId": "d1xzepta94d6m7"
-    },
-    "categories": {
-      "auth": {
-        "datamatics": {
-          "userPoolId": "us-east-1_19CPwLU7U",
-          "userPoolName": "Datamatics.S3",
-          "webClientId": "7euapbcijfqj4q5defos297ssp",
-          "nativeClientId": "7euapbcijfqj4q5defos297ssp",
-          "identityPoolId": "us-east-1:632fe465-4c6b-49a7-bcb0-ddc9cf0e16ee",
-          "identityPoolName": "Datamatics.S3",
-          "allowUnauthenticatedIdentities": true,
-          "authRoleArn": "arn:aws:iam::688487247453:role/Cognito_DatamaticsS3Auth_Role",
-          "authRoleName": "Cognito_DatamaticsS3Auth_Role",
-          "unauthRoleArn": "arn:aws:iam::688487247453:role/Cognito_DatamaticsS3Unauth_Role",
-          "unauthRoleName": "Cognito_DatamaticsS3Unauth_Role"
-        }
-      },
-      "storage": {
-        "datamaticsec7561a2": {
-          "bucketName": "ac-datamatics",
-          "region": "us-east-1"
-        }
-      }
     }
   }
 }
