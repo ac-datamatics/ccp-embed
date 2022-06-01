@@ -1,11 +1,8 @@
 import './App.css';
 import CCP from './CCP';
 
-// import ScreenRecorder from './ScreenRecorder';
-import { uploadFile, uploadVideo } from './uploadS3';
 import React, { useState, useRef } from "react";
 import RecordRTC from "recordrtc";
-
 import Amplify, { Auth, Storage } from 'aws-amplify';
 
 import awsconfig from './aws-exports';
@@ -43,7 +40,8 @@ function App() {
     const [isRecording, setIsRecording] = useState(null);
     const recorderRef = useRef(null);
 
-    const getScreen = async () => {
+    const getScreen = async (getConfirm = false) => {
+        console.debug('i am getting screen')
         if (!stream || !stream.active) {       // Get screen if necessary
             const mediaStream = await navigator.mediaDevices.getDisplayMedia({
                 video: {
@@ -61,23 +59,27 @@ function App() {
     }
 
     const startRecording = () => {
-        // TODO: check if incoming contact isn't a task
-        // if recorder does not exist
-        if(!recorderRef.current) return;
+        console.debug('passed one')
         // If isn't recording
-        if (recorderRef.current.getState() == "recording") return;   // Check it isn't already recording
+        if (recorderRef.current.getState() == "recording") return;
+        console.debug('passed two');
         recorderRef.current.startRecording();
         console.debug('started recording');
     };
 
-    const stopRecording = () => {
+    const stopRecording = async () => new Promise((resolve, reject) => {
         if (!recorderRef.current) return;       // Recording doesn't exist
         if (recorderRef.current.getState() == "stopped") return;    // Not recording
-        recorderRef.current.stopRecording(async () => {
-            console.debug(URL.createObjectURL(await recorderRef.current.getBlob()))
+
+        // let heyBlob = await recorderRef.current.getBlob();
+        // console.debug(heyBlob);
+        // let reader = new FileReader();
+        // console.debug(reader.readAsArrayBuffer(heyBlob));
+        console.debug('stopped recording')
+        recorderRef.current.stopRecording(function() {
+            resolve(this.getBlob());
         });
-        console.debug('stopped recording');
-    };
+    });
 
     return (
         <div className="App">
@@ -96,17 +98,21 @@ function App() {
                 }}
                 onInstanceTerminated={async () => {
                     // Called on instance termination, when an agent logs out
-
+                    setStream(null);
                 }}
                 onAgent={async (agent) => {
                     // Called after initialization, when an agent is assigned to the ccp
                     //let type = ccp.current.getAgentType();
+                    agent.setState(agent.getAgentStates()[1], {
+                        success: () => { console.debug('changed') },
+                        failure: (err) => { console.debug('not changed') },
+                       },
+                    );
                 }}
                 onAgentStateChange={async (state) => {
                     // Called when the agent's state changes (ie, they are online/offline, in a call or on acw)
-                    // Get screen 
-                    if (state?.newState === 'PendingBusy') {
-                        console.debug(state.newState);
+                    // When agent gets online
+                    if(state?.newState === 'Available' && state?.oldState === 'Offline') {
                         await getScreen();
                     }
                     console.debug(state.newState)
@@ -116,13 +122,8 @@ function App() {
                 }}
                 onIncomingContact={async (contact) => {
                     // Called when there is an incoming contact (eg, the phone is ringing)
-                    // Here the option to answer and start recording should be shown
-                    if (window.confirm("Answer")) {
-                        contact.accept();
-                        startRecording();
-                    } else {
-                        contact.reject();
-                    }
+                    console.debug('i am incoming')
+                    await getScreen(true);
                 }}
                 onPendingContact={(contact) => {
                     // Called before the connectedContact event. The contact is pending
@@ -133,6 +134,8 @@ function App() {
                 }}
                 onConnectedContact={(contact) => {
                     // Called when the contact is connected (the call has started)
+                    startRecording(contact);
+                    console.debug('hello there')
                 }}
                 onEndedContact={(contact) => {
                     // Called when either party hangs up
@@ -146,10 +149,10 @@ function App() {
                 onDestroyContact={async (contact) => {
                     // Called after acw, when the agent closes the communication with the contact
                     // Stop recording
-                    stopRecording();
+                    let heyBlob = await stopRecording();
 
                     // Here, the stored recording should be uploaded to S3
-                    Storage.put("prueba.webm", await recorderRef.current.getBlob(), {
+                    Storage.put(`${contact.getContactId()}.webm`, heyBlob, {
                         level: "public",
                         contentType: "video/webm",
                         progressCallback: (progress) => {
