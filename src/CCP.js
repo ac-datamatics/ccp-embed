@@ -91,7 +91,8 @@ class CCP extends Component {
             let previousContactID = null;
             // Listen to contacts
             connect.contact(contact => {
-                alert(contact.getContactId());
+                if(contact.getType() == connect.ContactType.CHAT) return;
+                console.debug(contact.getContactId());
                 // Listen to contacts only once
                 if(contact.getContactId() == previousContactID) return;
                 previousContactID = contact.getContactId();
@@ -106,8 +107,7 @@ class CCP extends Component {
                     switch (previousState) {
                         case connect.ContactStateType.INCOMING:
                         case connect.ContactStateType.CONNECTING:
-                            if(contact.getType() == connect.ContactType.VOICE)
-                                return this.props.onIncomingContact?.(contact);
+                            return this.props.onIncomingContact?.(contact);
                         case connect.ContactStateType.PENDING:
                             return this.props.onPendingContact?.(contact);
                         case connect.ContactStateType.MISSED:
