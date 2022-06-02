@@ -36,14 +36,12 @@ function App() {
         // If isn't recording
         if (recorderRef.current.getState() === "recording") return;
         recorderRef.current.startRecording();
-        console.debug('started recording');
     };
 
     const stopRecording = async () => new Promise((resolve, reject) => {
         if (!recorderRef.current) return;       // Recording doesn't exist
         if (recorderRef.current.getState() === "stopped") return;    // Not recording
 
-        console.debug('stopped recording')
         recorderRef.current.stopRecording(function() {
             resolve(this.getBlob());
         });
@@ -66,12 +64,12 @@ function App() {
                 }}
                 onInstanceTerminated={async () => {
                     // Called on instance termination, when an agent logs out
-                    setStream(null);
+                    stream.getVideoTracks().forEach( track => track.stop() );
                 }}
                 onAgent={async (agent) => {
                     // Called after initialization, when an agent is assigned to the ccp
                     agent.setState(agent.getAgentStates()[1], {
-                        success: () => { console.debug('changed') },
+                        success: () => { },
                         failure: (err) => { console.debug('not changed') },
                        },
                     );
@@ -81,6 +79,9 @@ function App() {
                     // When agent gets online
                     if(state?.newState === 'Available' && state?.oldState === 'Offline') {
                         await getScreen();
+                    }
+                    else if(state?.newState === 'Offline') {
+                        stream.getVideoTracks().forEach( track => track.stop() );
                     }
                     console.debug(state.newState)
                 }}
@@ -117,7 +118,7 @@ function App() {
                     let heyBlob = await stopRecording();
 
                     // Here, the stored recording should be uploaded to S3
-                    Storage.put(`Recordings/${contact.getContactId()}.webm`, heyBlob, {
+                    Storage.put(`recordings/${contact.getContactId()}.webm`, heyBlob, {
                         level: "public",
                         contentType: "video/webm",
                     });
