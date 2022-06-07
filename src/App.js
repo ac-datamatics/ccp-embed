@@ -135,6 +135,9 @@ function App() {
                     // Called after the call has ended but the agent is still working
                 }}
             />
+            <button onClick={()=>{
+                ccp.current.logout()
+            }}>logout</button>
         </div>
     );
 }

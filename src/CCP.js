@@ -17,7 +17,7 @@ class CCP extends Component {
         this.__updateConnectedSubscription;
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         connect.core.getEventBus().unsubscribeAll();
     }
 
@@ -57,7 +57,7 @@ class CCP extends Component {
         // On ccp instance terminated
         this.__terminatedSubscription?.unsubscribe();
         this.__terminatedSubscription = connect.core.getEventBus().subscribe(connect.EventType.TERMINATED, () => {
-            if(!this.state.initialized) return;
+            if (!this.state.initialized) return;
             this.setState({ initialized: false });
             // Callback
             this.props.onInstanceTerminated?.();
@@ -66,7 +66,7 @@ class CCP extends Component {
         // On connected to ccp
         this.__updateConnectedSubscription?.unsubscribe();
         this.__updateConnectedSubscription = connect.core.getEventBus().subscribe(connect.EventType.UPDATE_CONNECTED_CCPS, () => {
-            if(this.state.initialized) return;
+            if (this.state.initialized) return;
             this.setState({ initialized: true });
             // Close login window
             this.__loginWindow?.close();
@@ -74,7 +74,7 @@ class CCP extends Component {
             this.props.onInstanceConnected?.();
             // Listen to agents 
             connect.agent(agent => {
-                if(agent.getConfiguration().username == this.agent?.getConfiguration().username) return;
+                if (agent.getConfiguration().username == this.agent?.getConfiguration().username) return;
                 // Store agent
                 this.agent = agent;
                 // Callback
@@ -91,10 +91,10 @@ class CCP extends Component {
             let previousContactID = null;
             // Listen to contacts
             connect.contact(contact => {
-                if(contact.getType() == connect.ContactType.CHAT) return;
+                if (contact.getType() == connect.ContactType.CHAT) return;
                 console.debug(contact.getContactId());
                 // Listen to contacts only once
-                if(contact.getContactId() == previousContactID) return;
+                if (contact.getContactId() == previousContactID) return;
                 previousContactID = contact.getContactId();
                 // Callback
                 this.props.onContact?.(contact);
@@ -131,7 +131,7 @@ class CCP extends Component {
                 contact.onDestroy((contact) => {
                     if (previousState == "destroy") return;
                     previousState = "destroy";
-                    if(contact.getType() == connect.ContactType.VOICE)
+                    if (contact.getType() == connect.ContactType.VOICE)
                         this.props.onDestroyContact?.(contact);
                 });
             });
@@ -147,18 +147,18 @@ class CCP extends Component {
         this.__loginWindow = window.open(this.instanceURL, "window2", "popup=1");
     }
 
-    getAgentType(){
-        try{
+    getAgentType() {
+        try {
             const permissions = this.agent.getPermissions();
-            if(permissions.length == 1) return "Agent";
+            if (permissions.length == 1) return "Agent";
             return "Admin";
-        } catch(e){
+        } catch (e) {
             console.debug(e.message);
             return "CallCenterManager";
         }
     }
 
-    setAgentStatus(type){
+    setAgentStatus(type) {
         this.agent.setState(type)
     }
 
@@ -167,13 +167,26 @@ class CCP extends Component {
         if (!isBrowserCompatible()) return <div> This browser is not compatible </div>
         return (
             <div style={this.props.style}>
-                <div ref={this.containerDiv} style={{display: this.state.initialized ? 'flex' : 'none', flex: 1, height: '100%', width: '100%'}}></div>
+                <div ref={this.containerDiv} style={{ display: this.state.initialized ? 'flex' : 'none', flex: 1, height: '100%', width: '100%' }}></div>
                 <div style={{ display: this.state.initialized ? 'none' : 'flex', flexDirection: 'column', flex: 1, height: '100%', width: '100%' }}>
                     <h1>Please login here</h1>
                     <button onClick={this.openLoginPopup.bind(this)}>Login</button>
                 </div>
             </div>
         )
+    }
+
+    logout() {
+        // TODO: TEST
+        return new Promise((resolve, reject) => {
+            fetch(this.instanceURL + '/connect/logout', { credentials: "include", mode: "no-cors" })
+                .then(() => {
+                    const eventBus = connect.core.getEventBus();
+                    eventBus.trigger(connect.EventType.TERMINATE);
+                    resolve()
+                })
+                .catch(reject)
+        })
     }
 
 }
